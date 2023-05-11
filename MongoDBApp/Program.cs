@@ -27,8 +27,6 @@ namespace MongoDBApp
                     Console.WriteLine(database);
                 }
             }
-
-            Console.WriteLine("Hello, World!");
         }
     }
 }
