@@ -11,9 +11,9 @@ namespace MongoDBApp
 
             var db = client.GetDatabase("mybase");
             var col = db.GetCollection<BsonDocument>("test");
-            await col.InsertOneAsync(new BsonDocument { { "key", "value" } });
+            //await col.InsertOneAsync(new BsonDocument { { "key", "value" } });
 
-            var documents = col.Find(new BsonDocument()).ToList();
+            var documents = col.Find("{}").Project("{_id:0}").ToList();
             foreach (var document in documents) 
             {
                 Console.WriteLine(document);
