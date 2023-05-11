@@ -1,4 +1,5 @@
-﻿using MongoDB.Driver;
+﻿using MongoDB.Bson;
+using MongoDB.Driver;
 
 namespace MongoDBApp
 {
@@ -8,7 +9,17 @@ namespace MongoDBApp
         {
             MongoClient client = new MongoClient("mongodb://localhost:27017");
 
-            using (var cursor = await client.ListDatabasesAsync())
+            var db = client.GetDatabase("mybase");
+            var col = db.GetCollection<BsonDocument>("test");
+            await col.InsertOneAsync(new BsonDocument { { "key", "value" } });
+
+            var documents = col.Find(new BsonDocument()).ToList();
+            foreach (var document in documents) 
+            {
+                Console.WriteLine(document);
+            }
+
+            using (var cursor = client.ListDatabases())
             {
                 var databases = cursor.ToList();
                 foreach (var database in databases)
