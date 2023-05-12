@@ -10,23 +10,26 @@ namespace MongoDBApp
             MongoClient client = new MongoClient("mongodb://localhost:27017");
 
             var db = client.GetDatabase("mybase");
-            var col = db.GetCollection<BsonDocument>("test");
-            //await col.InsertOneAsync(new BsonDocument { { "key", "value" } });
+            
+            //Проверка заполненности коллекции и генерация документов
+            var testCol = db.GetCollection<BsonDocument>("test");
+            if (testCol.Find("{}").ToList().Count == 0)
+            {
+                for (int i = 0; i < 10; i++)
+                {
+                    await testCol.InsertOneAsync(new BsonDocument { { "key" + i.ToString(), "value" + i.ToString() } });
+                }
+            }
 
-            var documents = col.Find("{}").Project("{_id:0}").ToList();
+            //Вывод документов коллекции
+            var documents = testCol.Find("{}").Project("{_id:0}").ToList();
             foreach (var document in documents) 
             {
                 Console.WriteLine(document);
             }
 
-            using (var cursor = client.ListDatabases())
-            {
-                var databases = cursor.ToList();
-                foreach (var database in databases)
-                {
-                    Console.WriteLine(database);
-                }
-            }
+            //Очистка коллекции
+            await testCol.DeleteManyAsync("{}");
         }
     }
 }
