@@ -57,6 +57,7 @@ namespace MongoDBApp
                 for (int i = 0; i < 10; i++)
                 {
                     documentList.Add(new BsonDocument { { "name", "multipleDoc" + i.ToString() }, { "data", "some data " + i.ToString() } });
+                    documentList.Add(new DataHolder { Name = "holderDoc" + i.ToString(), Data = "some data " + i.ToString() }.ToBsonDocument());
                 }
                 await directCol.InsertManyAsync(documentList);
             }
