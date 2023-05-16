@@ -34,10 +34,13 @@ namespace MongoDBApp
                 }
             }
 
+            //Изменение документов
+            await indirectCol.UpdateManyAsync("{}", new BsonDocument("$set", new BsonDocument("data", "null")));
+
             //Вывод документов коллекции
             Console.WriteLine("\nДокументы коллекции indirect:");
             var indirectDocs = indirectCol.Find("{}").Project("{_id:0}").ToList();
-            foreach (var document in indirectDocs) 
+            foreach (var document in indirectDocs)
             {
                 Console.WriteLine(document);
             }
