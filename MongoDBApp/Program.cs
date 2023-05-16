@@ -11,14 +11,22 @@ namespace MongoDBApp
 
             var db = client.GetDatabase("mybase");
             
-            //Проверка заполненности коллекции и генерация документов
+            //Проверка заполненности коллекции и добавление документов
             var testCol = db.GetCollection<BsonDocument>("test");
             if (testCol.Find("{}").ToList().Count == 0)
             {
+                //Добавление по одному
                 for (int i = 0; i < 10; i++)
                 {
-                    await testCol.InsertOneAsync(new BsonDocument { { "key" + i.ToString(), "value" + i.ToString() } });
+                    await testCol.InsertOneAsync(new BsonDocument { { "name", "singleDoc" + i.ToString() } });
                 }
+                //Добавление коллекции
+                List<BsonDocument> documentList = new List<BsonDocument>();
+                for (int i = 0; i < 10; i++)
+                {
+                    documentList.Add(new BsonDocument { { "name", "multipleDoc" + i.ToString() } });
+                }
+                await testCol.InsertManyAsync(documentList);
             }
 
             //Вывод документов коллекции
