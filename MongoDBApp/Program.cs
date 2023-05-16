@@ -11,33 +11,62 @@ namespace MongoDBApp
 
             var db = client.GetDatabase("mybase");
             
+            //Неявное создание коллекции
+            var indirectCol = db.GetCollection<BsonDocument>("indirect");
+
             //Проверка заполненности коллекции и добавление документов
-            var testCol = db.GetCollection<BsonDocument>("test");
-            if (testCol.Find("{}").ToList().Count == 0)
+            if (indirectCol.Find("{}").ToList().Count == 0)
             {
                 //Добавление по одному
                 for (int i = 0; i < 10; i++)
                 {
-                    await testCol.InsertOneAsync(new BsonDocument { { "name", "singleDoc" + i.ToString() } });
+                    await indirectCol.InsertOneAsync(new BsonDocument { { "name", "singleDoc" + i.ToString() } });
                 }
-                //Добавление коллекции
-                List<BsonDocument> documentList = new List<BsonDocument>();
-                for (int i = 0; i < 10; i++)
-                {
-                    documentList.Add(new BsonDocument { { "name", "multipleDoc" + i.ToString() } });
-                }
-                await testCol.InsertManyAsync(documentList);
             }
 
             //Вывод документов коллекции
-            var documents = testCol.Find("{}").Project("{_id:0}").ToList();
-            foreach (var document in documents) 
+            var indirectDocs = indirectCol.Find("{}").Project("{_id:0}").ToList();
+            foreach (var document in indirectDocs) 
             {
                 Console.WriteLine(document);
             }
 
             //Очистка коллекции
-            await testCol.DeleteManyAsync("{}");
+            await indirectCol.DeleteManyAsync("{}");
+
+            //Явное создание коллекции
+            await db.CreateCollectionAsync("direct");
+            var directCol = db.GetCollection<BsonDocument>("direct");
+
+            //Проверка заполненности коллекции и добавление документов
+            if (directCol.Find("{}").ToList().Count == 0)
+            {
+                //Добавление списка
+                List<BsonDocument> documentList = new List<BsonDocument>();
+                for (int i = 0; i < 10; i++)
+                {
+                    documentList.Add(new BsonDocument { { "name", "multipleDoc" + i.ToString() }, { "data", "some data " + i.ToString() } });
+                }
+                await directCol.InsertManyAsync(documentList);
+            }
+
+            //Вывод документов коллекции
+            var directDocs = directCol.Find("{}").Project("{_id:0}").ToList();
+            foreach (var document in directDocs)
+            {
+                Console.WriteLine(document);
+            }
+
+            //Удаление коллекций
+            await db.DropCollectionAsync("indirect");
+            await db.DropCollectionAsync("direct");
+
+            //Вывод списка коллекций
+            var collections = await db.ListCollectionNamesAsync();
+            foreach (var collection in collections.ToList())
+            {
+                Console.WriteLine(collection);
+            }
         }
     }
 }
