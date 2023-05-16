@@ -10,7 +10,17 @@ namespace MongoDBApp
             MongoClient client = new MongoClient("mongodb://localhost:27017");
 
             var db = client.GetDatabase("mybase");
-            
+
+            //Вывод списка коллекций
+            Console.WriteLine("Список коллекций:");
+            using (var collections = await db.ListCollectionNamesAsync()) 
+            {
+                foreach (var collection in collections.ToList())
+                {
+                    Console.WriteLine(collection);
+                }
+            }
+
             //Неявное создание коллекции
             var indirectCol = db.GetCollection<BsonDocument>("indirect");
 
@@ -25,6 +35,7 @@ namespace MongoDBApp
             }
 
             //Вывод документов коллекции
+            Console.WriteLine("\nДокументы коллекции indirect:");
             var indirectDocs = indirectCol.Find("{}").Project("{_id:0}").ToList();
             foreach (var document in indirectDocs) 
             {
@@ -52,6 +63,7 @@ namespace MongoDBApp
 
             //Вывод документов коллекции
             var directDocs = directCol.Find("{}").Project("{_id:0}").ToList();
+            Console.WriteLine("\nДокументы коллекции direct:");
             foreach (var document in directDocs)
             {
                 Console.WriteLine(document);
@@ -62,10 +74,13 @@ namespace MongoDBApp
             await db.DropCollectionAsync("direct");
 
             //Вывод списка коллекций
-            var collections = await db.ListCollectionNamesAsync();
-            foreach (var collection in collections.ToList())
+            Console.WriteLine("\nСписок коллекций:");
+            using (var collections = await db.ListCollectionNamesAsync())
             {
-                Console.WriteLine(collection);
+                foreach (var collection in collections.ToList())
+                {
+                    Console.WriteLine(collection);
+                }
             }
         }
     }
