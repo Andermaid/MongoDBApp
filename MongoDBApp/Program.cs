@@ -62,8 +62,8 @@ namespace MongoDBApp
                 await directCol.InsertManyAsync(documentList);
             }
 
-            //Вывод документов коллекции
-            var directDocs = directCol.Find("{}").Project("{_id:0}").ToList();
+            //Вывод документов коллекции с сортировкой
+            var directDocs = directCol.Find("{}").Sort("{name:1}").Project("{_id:0}").ToList();
             Console.WriteLine("\nДокументы коллекции direct:");
             foreach (var document in directDocs)
             {
